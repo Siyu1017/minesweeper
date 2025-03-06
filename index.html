@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minesweeper</title>
+    <style>
+        .control {
+            margin: auto;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            width: fit-content;
+            gap: .5rem;
+        }
+
+        .game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: fit-content;
+            margin: auto;
+            border: 1.5px solid rgba(0, 0, 0, .1);
+            padding: .5rem;
+            border-radius: .75rem;
+            gap: .5rem;
+            margin-top: .5rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            width: -webkit-fill-available;
+            font-size: 2rem;
+            font-family: monospace;
+        }
+
+        .body {
+            border-radius: .5rem;
+            overflow: hidden;
+            height: fit-content;
+            max-height: fit-content;
+            display: flex;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="control">
+            <span>Rows:<input type="number" id="w"></span>
+            <span>Columns:<input type="number" id="h"></span>
+            <button id="start">New Game</button>
+        </div>
+        <div class="game">
+            <div class="header">
+                <div id="left-sweepers">000</div>
+                <div id="timer">000</div>
+            </div>
+            <div class="body">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+    <script src="./minesweeper.js"></script>
+</body>
+
+</html>
