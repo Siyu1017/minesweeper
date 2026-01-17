@@ -1,6 +1,9 @@
 // Get canvas element
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+const modal = document.getElementById('modal');
+const button = document.getElementById('modal-button');
+const text = document.getElementById('modal-text');
 
 var w = 18;
 var h = 18;
@@ -72,6 +75,7 @@ function generateMap(w, h) {
 function init() {
     w = Number(document.getElementById('w').value) || 18;
     h = Number(document.getElementById('h').value) || 18;
+    revealedCount = 0;
     gameOver = false;
     map = generateMap(w, h);
     marked = [];
@@ -136,7 +140,7 @@ function pointToCoordinate(x, y) {
 function drawBlocks() {
     blocks.forEach((row, y) => {
         row.forEach((block, x) => {
-            var remainder = (x + y) % 2;
+            const remainder = (x + y) % 2;
             ctx.save();
             ctx.fillStyle = block.isRevealed ? (block.isSweeper ? 'red' : colors.revealed[remainder]) : colors.original[remainder];
             ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
@@ -144,9 +148,12 @@ function drawBlocks() {
             if (block.isRevealed) {
                 ctx.textAlign = 'center'
                 if (block.isSweeper) {
-                    ctx.fillStyle = 'black';
-                    ctx.font = '24px Arial';
-                    ctx.fillText('*', x * blockSize + blockSize / 2, y * blockSize + blockSize / 2 + 8);
+                    ctx.fillStyle = '#a60000';
+                    //ctx.font = '24px Arial';
+                    ctx.arc(x * blockSize + blockSize / 2, y * blockSize + blockSize / 2, blockSize / 6, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.closePath();
+                    //ctx.fillText('*', x * blockSize + blockSize / 2, y * blockSize + blockSize / 2 + 8);
                 } else if (block.nearbySweepers != 0) {
                     ctx.fillStyle = 'black';
                     ctx.font = '24px Arial';
@@ -167,16 +174,27 @@ function update() {
     canvasClarifier(canvas, ctx, w * blockSize, h * blockSize);
     drawBlocks();
     document.getElementById('left-sweepers').innerText = String(sweeperCount - marked.length).padStart(3, '0');
+    console.log(revealedCount, w * h, sweeperCount)
     if (revealedCount == w * h - sweeperCount) {
-        alert('You won!');
+        showModal('You won!');
         gameOver = true;
     }
 }
 
 function openBlock(x, y) {
-    var block = blocks[y][x];
+    const block = blocks[y][x];
     if (!block) return;
-    if (!block.isSweeper && !block.isRevealed) {
+    if (block.isSweeper) {
+        showModal('You lost!');
+        gameOver = true;
+        blocks.forEach((row, i) => {
+            row.forEach((block, j) => {
+                block.isRevealed = true;
+            })
+        })
+        return;
+    }
+    if (!block.isRevealed) {
         revealedCount++;
         block.isRevealed = true;
         block.isMarked = false;
@@ -214,20 +232,13 @@ function markBlock(x, y) {
 }
 
 function revealBlock(x, y) {
-    var block = blocks[y][x];
-    if (!block) return;
-    if (block.isSweeper) {
-        alert('You lost!');
-        gameOver = true;
-        blocks.forEach((row, i) => {
-            row.forEach((block, j) => {
-                block.isRevealed = true;
-            })
-        })
-    } else {
-        openBlock(x, y);
-    }
+    openBlock(x, y);
     update();
+}
+
+function showModal(content) {
+    modal.classList.add('active');
+    text.innerText = content;
 }
 
 canvas.addEventListener('mousedown', (e) => {
@@ -252,5 +263,10 @@ canvas.addEventListener('contextmenu', (e) => {
 document.getElementById('start').addEventListener('click', init);
 document.getElementById('w').value = w;
 document.getElementById('h').value = h;
+
+button.addEventListener('click', () => {
+    modal.classList.remove('active');
+    init();
+})
 
 init();
